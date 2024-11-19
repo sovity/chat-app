@@ -2,11 +2,24 @@
 
 Chat app serving as a developer tutorial how to develop EDC apps and as a demo app for EDCs 
 
-- https://editor-next.swagger.io for [openapi.yaml](openapi.yaml)
-- https://mermaid.live for [sequencediagram.mermaid](sequencediagram.mermaid)
+## Specification
+
+### UI Mockup
 
 ![image](https://github.com/user-attachments/assets/839daa3c-1047-4278-879b-2ad5c8976505)
 
+### Process
+
+https://mermaid.live for [sequencediagram.mermaid](sequencediagram.mermaid)
+![image](sequencediagram.png)
+
+### Architecture
+
+![image](https://github.com/user-attachments/assets/2068a685-c64f-421a-a726-04502318fe12)
+
+### API
+
+https://editor-next.swagger.io for [openapi.yaml](openapi.yaml)
 
 ## General
 
