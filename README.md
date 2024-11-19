@@ -5,6 +5,9 @@ Chat app serving as a developer tutorial how to develop EDC apps and as a demo a
 - https://editor-next.swagger.io for [openapi.yaml](openapi.yaml)
 - https://mermaid.live for [sequencediagram.mermaid](sequencediagram.mermaid)
 
+![image](https://github.com/user-attachments/assets/839daa3c-1047-4278-879b-2ad5c8976505)
+
+
 ## General
 
 ### Why
@@ -42,3 +45,4 @@ Onboarding of use case developers follows a steep learning curve, since EDCs fol
   - Specific details
     - Notification paradigm
 - Docker Images and deploy example 
+
