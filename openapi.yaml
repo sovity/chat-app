@@ -1,0 +1,244 @@
+openapi: 3.1.0
+info:
+  title: Chat App
+  description: |-
+    This is the default API for Chat App.
+
+    Some useful links:
+    - [sovity](https://github.com/sovity/edc-ce)
+
+  contact:
+    email: contact@sovity.de
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.0.1
+tags:
+  - name: UI
+    description: UI APIs
+  - name: Backend
+    description: APIs for Connector and Chat communication
+
+paths:
+  /ui/connectors:
+    get:
+      tags:
+        - UI
+      summary: Get all registered Connectors for Chats
+      description: Get all registered Connectors for Chats
+      operationId: listConnectors
+      responses:
+        '200':
+          description: List of Connectors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConnectorDto'
+    post:
+      tags:
+        - UI
+      summary: Start a new chat with given Connector
+      description: Start a new chat with given Connector or if the connector is already present returns the existing one.
+      operationId: createConnector(ConnectorCreateDto createDto)
+      parameters:
+        - name: createDto
+          in: query
+          description: Necessary information of a Connector to start a chat
+          schema:
+            $ref: '#/components/schemas/ConnectorCreateDto'
+      responses:
+        '200':
+          description: Created DTO
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectorDto'
+  /ui/connectors/{connectorId}/messages:
+    get:
+      tags:
+        - UI
+      summary: Get all messages for a given connector ID
+      description: Get all messages for a given connector ID sorted by date ascending
+      operationId: messagesByDateAsc(String connectorId)
+      parameters:
+        - name: connectorId
+          in: path
+          description: ID of the connector
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of Messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageDto'
+    post:
+      tags:
+        - UI
+      summary: Send a message to a given Connector
+      description: Send a message to a given Connector.
+      operationId: sendMessage(MessageSendDto sendDto)
+      parameters:
+        - name: connectorId
+          in: path
+          description: ID of the receiving connector
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sendDto
+          in: query
+          description: Message Dto to be sent to the connector
+          schema:
+            $ref: '#/components/schemas/MessageSendDto'
+      responses:
+        '200':
+          description: Created DTO
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageDto'
+        '404':
+          description: Connector not found
+  /edc/receive/notification:
+    post:
+      tags:
+        - Backend
+      summary: Receive a notification from another Connector
+      description: Receive a notification from another Connector
+      operationId: receiveNotification(NotificationDto notification)
+      parameters:
+        - name: notification
+          in: query
+          description: Notification from another Connector
+          schema:
+            $ref: '#/components/schemas/NotificationDto'
+      responses:
+        '200':
+          description: Notification received
+  /edc/connectors/{connectorId}/messages/unread:
+    get:
+      tags:
+        - Backend
+      summary: Provide all unread messages for a given connector ID
+      description: Provide all messages for a given connector ID
+      operationId: getUnreadMessages(String connectorId)
+      parameters:
+        - name: connectorId
+          in: path
+          description: ID of the connector
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of unread messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageTransferDto'
+components:
+  schemas:
+    ConnectorDto:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Internal object ID
+        participantId:
+          type: string
+          description: ID e.g. BPN of the other party
+        connectorEndpoint:
+          type: string
+          description: URL of other Connector's DSP endpoint
+        status:
+          type: string
+          description: Status of other Connector.
+          examples: [online]
+          enum:
+            - online
+            - offline
+    ConnectorCreateDto:
+      type: object
+      properties:
+        participantId:
+          type: string
+          description: ID e.g. BPN of the other party
+        connectorEndpoint:
+          type: string
+          description: URL of other Connector's DSP endpoint
+    MessageSendDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: The chat massage
+        username:
+          type: string
+          description: Name of the user sending the message
+    MessageDto:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Internal object ID
+        createdAt:
+          type: string
+          format: date-time
+          description: Time when chat message was created as OffsetDateTime
+        message:
+          type: string
+          description: The chat massage
+        username:
+          type: string
+          description: Name of the user sending the message
+        messageDirection:
+          type: string
+          description: Incoming or outgoing message.
+          examples: [incoming]
+          enum:
+            - incoming
+            - outgoing
+        status:
+          type: string
+          description: Incoming status (notification received -> fetched) or outgoing message (notification sent -> fetched) or error if notification could not be sent or incoming messages could not be fetched.
+          examples: [notified]
+          enum:
+            - notified
+            - fetched
+            - error
+    MessageTransferDto:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          description: Time when chat message was created as OffsetDateTime
+        message:
+          type: string
+          description: The chat massage
+        username:
+          type: string
+          description: Name of the user sending the message
+    NotificationDto:
+      type: object
+      properties:
+        provideMessageOfferId:
+          type: string
+          format: date-time
+          description: Offer ID which can be negotiated by the counter party to receive messages from the resulting contract.
+        connectorEndpoint:
+          type: string
+          description: URL of other Connector's DSP endpoint
