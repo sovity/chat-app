@@ -4,5 +4,5 @@ data class ConnectorDto(
     val uuid: String,
     val participantId: String,
     val connectorEndpoint: String,
-    val status: String
+    val status: ConnectorStatusDto
 )

@@ -2,8 +2,9 @@ package de.sovity.chatapp.api
 
 import de.sovity.chatapp.model.ConnectorCreateDto
 import de.sovity.chatapp.model.ConnectorDto
-import de.sovity.chatapp.model.NotificationDto
+import de.sovity.chatapp.model.MessageNotificationDto
 import jakarta.ws.rs.GET
+import jakarta.ws.rs.HeaderParam
 import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.QueryParam
@@ -35,14 +36,8 @@ class ApiResource {
     }
 
     @POST
-    @Path("edc/notification/receive")
-    fun receiveNotification(notification: NotificationDto3) {
-        TODO("Implementation")
-    }
-
-    @GET
-    @Path("edc/connectors/{connectorId}/messages/unread")
-    fun getAllUnreadMessages(@QueryParam("connectorId") connectorId: String) {
+    @Path("edc/notifications/receive")
+    fun receiveNotification(@HeaderParam("Edc-Bpn") edcBpn: String, notification: MessageNotificationDto) {
         TODO("Implementation")
     }
 }
