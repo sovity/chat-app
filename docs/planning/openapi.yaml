@@ -107,46 +107,27 @@ paths:
                 $ref: '#/components/schemas/MessageDto'
         '404':
           description: Connector not found
-  /edc/notification/receive:
+  /edc/notifications/receive:
     post:
       tags:
         - Backend
       summary: Receive a notification from another Connector
       description: Receive a notification from another Connector
-      operationId: receiveNotification(NotificationDto notification)
+      operationId: receiveNotification(MessageNotificationDto notification)
       parameters:
+        - in: header
+          name: Edc-Bpn
+          schema: 
+            type: string
+            description: Participant ID of the sending connector
         - name: notification
           in: query
           description: Notification from another Connector
           schema:
-            $ref: '#/components/schemas/NotificationDto'
+            $ref: '#/components/schemas/MessageNotificationDto'
       responses:
         '200':
           description: Notification received
-  /edc/connectors/{connectorId}/messages/unread:
-    get:
-      tags:
-        - Backend
-      summary: Provide all unread messages for a given connector ID
-      description: Provide all messages for a given connector ID
-      operationId: getUnreadMessages(String connectorId)
-      parameters:
-        - name: connectorId
-          in: path
-          description: ID of the connector
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: List of unread messages
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/MessageTransferDto'
 components:
   schemas:
     ConnectorDto:
@@ -164,11 +145,12 @@ components:
           description: URL of other Connector's DSP endpoint
         status:
           type: string
-          description: Status of other Connector.
-          examples: [online]
+          description: Whether we have two contracts (provide + receive)
+          examples: [ONLINE]
           enum:
-            - online
-            - offline
+            - ONLINE
+            - CONNECTING
+            - ERROR
     ConnectorCreateDto:
       type: object
       properties:
@@ -184,9 +166,6 @@ components:
         message:
           type: string
           description: The chat massage
-        username:
-          type: string
-          description: Name of the user sending the message
     MessageDto:
       type: object
       properties:
@@ -201,44 +180,34 @@ components:
         message:
           type: string
           description: The chat massage
-        username:
-          type: string
-          description: Name of the user sending the message
         messageDirection:
           type: string
           description: Incoming or outgoing message.
-          examples: [incoming]
+          examples: [INCOMING]
           enum:
-            - incoming
-            - outgoing
+            - INCOMING
+            - OUTGOING
         status:
           type: string
           description: Incoming status (notification received -> fetched) or outgoing message (notification sent -> fetched) or error if notification could not be sent or incoming messages could not be fetched.
-          examples: [notified]
+          examples: [OK]
           enum:
-            - notified
-            - fetched
-            - error
-    MessageTransferDto:
+            - SENDING
+            - OK
+            - ERROR
+    MessageNotificationDto:
       type: object
       properties:
-        createdAt:
+        returnAssetId:
           type: string
-          format: date-time
-          description: Time when chat message was created as OffsetDateTime
+          description: Asset ID for answers to the sending connector
+        returnConnectorEndpoint:
+          type: string
+          description: Connector Endpoint of hte sending connector
+        returnParticipantId:
+          type: string
+          description: Participant ID of the sending connector
         message:
           type: string
-          description: The chat massage
-        username:
-          type: string
-          description: Name of the user sending the message
-    NotificationDto:
-      type: object
-      properties:
-        provideMessageOfferId:
-          type: string
-          format: date-time
-          description: Offer ID which can be negotiated by the counter party to receive messages from the resulting contract.
-        connectorEndpoint:
-          type: string
-          description: URL of other Connector's DSP endpoint
+          description: Message content
+
