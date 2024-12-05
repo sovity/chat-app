@@ -7,11 +7,21 @@ plugins {
 repositories {
     mavenCentral()
     mavenLocal()
+    maven {
+        name = "maven.pkg.github.com/sovity/edc-ce"
+        url = uri("https://maven.pkg.github.com/sovity/edc-ce")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GPR_USER")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("GPR_KEY")
+        }
+    }
 }
 
 val quarkusPlatformGroupId: String by project
 val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
+
+val sovityEdcCeVersion = "0.0.1-20241101-2408-alpha8"
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
@@ -21,6 +31,8 @@ dependencies {
     implementation("io.quarkus:quarkus-resteasy-jackson")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.quarkus:quarkus-arc")
+    implementation("de.sovity.edc:client:${sovityEdcCeVersion}")
+    implementation("de.sovity.edc:json-and-jsonld-utils:${sovityEdcCeVersion}")
     testImplementation("io.quarkus:quarkus-junit5")
 }
 
