@@ -17,7 +17,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import org.eclipse.microprofile.config.inject.ConfigProperty
 
 @ApplicationScoped
-class EdcApiService(
+class NotificationReceiverAsset(
     private val edcClient: EdcClient,
 
     @ConfigProperty(name = "chatapp.url")
@@ -32,17 +32,17 @@ class EdcApiService(
         private const val UNRESTRICTED_POLICY_ID = "always-true"
     }
 
-    fun createNotificationReceiverAssetIfNotExists() {
-        if (getNotificationReceiverAsset() == null) {
-            createNotificationReceiverAsset()
+    fun ensureAssetExists() {
+        if (getNotificationAsset() == null) {
+            createAsset()
         }
     }
 
-    private fun getNotificationReceiverAsset(): UiAsset? {
+    private fun getNotificationAsset(): UiAsset? {
         return edcClient.uiApi().assetPage.assets.firstOrNull { it.assetId == NOTIFICATION_RECEIVER_ASSET_ID }
     }
 
-    private fun createNotificationReceiverAsset() {
+    private fun createAsset() {
         edcClient.uiApi().createAsset(
             UiAssetCreateRequest.builder()
                 .id(NOTIFICATION_RECEIVER_ASSET_ID)
@@ -63,17 +63,17 @@ class EdcApiService(
         )
     }
 
-    fun createNotificationReceiverDataOfferIfNotExists() {
-        if (getNotificationReceiverDataOffer() == null) {
-            createNotificationReceiverDataOffer()
+    fun ensureDataOfferExists() {
+        if (getNotificationDataOffer() == null) {
+            createDataOffer()
         }
     }
 
-    private fun getNotificationReceiverDataOffer(): ContractDefinitionEntry? {
+    private fun getNotificationDataOffer(): ContractDefinitionEntry? {
         return edcClient.uiApi().contractDefinitionPage.contractDefinitions.firstOrNull { it.contractDefinitionId == NOTIFICATION_RECEIVER_ASSET_ID }
     }
 
-    private fun createNotificationReceiverDataOffer() {
+    private fun createDataOffer() {
         edcClient.uiApi().createContractDefinition(
             ContractDefinitionRequest.builder()
                 .contractDefinitionId(NOTIFICATION_RECEIVER_DATA_OFFER_ID)
