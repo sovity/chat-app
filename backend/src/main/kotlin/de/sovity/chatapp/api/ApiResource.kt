@@ -2,6 +2,7 @@ package de.sovity.chatapp.api
 
 import de.sovity.chatapp.model.ConnectorCreateDto
 import de.sovity.chatapp.model.ConnectorDto
+import de.sovity.chatapp.model.MessageDto
 import de.sovity.chatapp.model.MessageNotificationDto
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.HeaderParam
@@ -25,13 +26,13 @@ class ApiResource {
 
     @GET
     @Path("ui/connectors/{connectorId}/messages")
-    fun getAllMessages(@QueryParam("connectorId") connectorId: String) {
+    fun getAllMessages(@QueryParam("connectorId") connectorId: String): List<MessageDto> {
         TODO("Implementation")
     }
 
     @POST
     @Path("ui/connectors/{connectorId}/messages")
-    fun sendMessage(@QueryParam("connectorId") connectorId: String) {
+    fun sendMessage(@QueryParam("connectorId") connectorId: String): MessageDto {
         TODO("Implementation")
     }
 
