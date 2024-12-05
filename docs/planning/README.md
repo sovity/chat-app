@@ -1,6 +1,25 @@
+# Development planning
+
+You can find the planned architecture and other development related plans here
+
+### Quick links
+
+- [Architecture](#architecture)
+- [UI Mockup](#ui-mockup)
+- [API](#api)
+- [Process](#process)
+
+### Architecture
+
+![image](https://github.com/user-attachments/assets/2068a685-c64f-421a-a726-04502318fe12)
+
 ### UI Mockup
 
 ![image](https://github.com/user-attachments/assets/839daa3c-1047-4278-879b-2ad5c8976505)
+
+### API
+
+You can find the API specification [here](openapi.yaml)
 
 ### Process
 
@@ -128,13 +147,4 @@ sequenceDiagram
         receiver-backend -->>- receiver-ui: List<MessageDto>
         end
     end
-
 ```
-
-### Architecture
-
-![image](https://github.com/user-attachments/assets/2068a685-c64f-421a-a726-04502318fe12)
-
-### API
-
-You can find the API specification [here](openapi.yaml)
