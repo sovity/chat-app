@@ -21,7 +21,7 @@ class NotificationReceiverAsset(
     private val edcClient: EdcClient,
 
     @ConfigProperty(name = "chatapp.url")
-    private val localUrl: String
+    private val chatAppUrl: String
 ) {
 
     companion object {
@@ -33,12 +33,12 @@ class NotificationReceiverAsset(
     }
 
     fun ensureAssetExists() {
-        if (getNotificationAsset() == null) {
+        if (getAsset() == null) {
             createAsset()
         }
     }
 
-    private fun getNotificationAsset(): UiAsset? {
+    private fun getAsset(): UiAsset? {
         return edcClient.uiApi().assetPage.assets.firstOrNull { it.assetId == NOTIFICATION_RECEIVER_ASSET_ID }
     }
 
@@ -53,7 +53,7 @@ class NotificationReceiverAsset(
                         .type(DataSourceType.HTTP_DATA)
                         .httpData(
                             UiDataSourceHttpData.builder()
-                                .baseUrl("$localUrl/ui/notification/receive")
+                                .baseUrl("$chatAppUrl/ui/notification/receive")
                                 .method(UiDataSourceHttpDataMethod.POST)
                                 .build()
                         )
@@ -64,12 +64,12 @@ class NotificationReceiverAsset(
     }
 
     fun ensureDataOfferExists() {
-        if (getNotificationDataOffer() == null) {
+        if (getDataOffer() == null) {
             createDataOffer()
         }
     }
 
-    private fun getNotificationDataOffer(): ContractDefinitionEntry? {
+    private fun getDataOffer(): ContractDefinitionEntry? {
         return edcClient.uiApi().contractDefinitionPage.contractDefinitions.firstOrNull { it.contractDefinitionId == NOTIFICATION_RECEIVER_ASSET_ID }
     }
 
