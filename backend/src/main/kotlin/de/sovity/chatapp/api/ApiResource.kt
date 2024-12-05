@@ -8,40 +8,40 @@ import jakarta.ws.rs.POST
 import jakarta.ws.rs.Path
 import jakarta.ws.rs.QueryParam
 
-@Path("/ui")
-class UiResource {
+@Path("/")
+class ApiResource {
     @GET
-    @Path("/connectors")
+    @Path("ui/connectors")
     fun getConnectors(): List<ConnectorDto> {
         TODO("Implementation")
     }
 
     @POST
-    @Path("/connectors")
+    @Path("ui/connectors")
     fun createConnector(request: ConnectorCreateDto): ConnectorDto {
         TODO("Implementation")
     }
 
     @GET
-    @Path("/connectors/{connectorId}/messages")
+    @Path("ui/connectors/{connectorId}/messages")
     fun getAllMessages(@QueryParam("connectorId") connectorId: String) {
         TODO("Implementation")
     }
 
     @POST
-    @Path("/connectors/{connectorId}/messages")
+    @Path("ui/connectors/{connectorId}/messages")
     fun sendMessage(@QueryParam("connectorId") connectorId: String) {
         TODO("Implementation")
     }
 
     @POST
-    @Path("/notification/receive")
+    @Path("edc/notification/receive")
     fun receiveNotification(notification: NotificationDto3) {
         TODO("Implementation")
     }
 
     @GET
-    @Path("/connectors/{connectorId}/messages/unread")
+    @Path("edc/connectors/{connectorId}/messages/unread")
     fun getAllUnreadMessages(@QueryParam("connectorId") connectorId: String) {
         TODO("Implementation")
     }
