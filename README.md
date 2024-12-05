@@ -2,34 +2,19 @@
 
 Chat app serving as a developer tutorial how to develop EDC apps and as a demo app for EDCs 
 
-## Specification
-
-### UI Mockup
-
-![image](https://github.com/user-attachments/assets/839daa3c-1047-4278-879b-2ad5c8976505)
-
-### Process
-
-https://mermaid.live for [sequencediagram.mermaid](sequencediagram.mermaid)
-![image](sequencediagram.png)
-
-### Architecture
-
-![image](https://github.com/user-attachments/assets/2068a685-c64f-421a-a726-04502318fe12)
-
-### API
-
-https://editor-next.swagger.io for [openapi.yaml](openapi.yaml)
-
-## General
-
-### Why
+## Why
 
 Onboarding of use case developers follows a steep learning curve, since EDCs follows a complex terminology, processes and domain. At the same time demonstration of the technology is difficult, since it is only a tooling.
 
+## Architecture
+
+The planning of the application can be found [here](docs/planning/README.md)
+
+## General
+
 ### Goal
 
-- Allow self-onboarding of developers, showing how to develop u﻿se case apps for EDCs
+- Allow self-onboarding of developers, showing how to develop use case apps for EDCs
   - Difference EDC Control Plane vs. EDC Data Plane
   - Create data offer
   - Fetch catalog

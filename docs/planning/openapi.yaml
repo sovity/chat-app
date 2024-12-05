@@ -107,7 +107,7 @@ paths:
                 $ref: '#/components/schemas/MessageDto'
         '404':
           description: Connector not found
-  /edc/receive/notification:
+  /edc/notification/receive:
     post:
       tags:
         - Backend
