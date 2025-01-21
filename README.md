@@ -8,7 +8,7 @@ Onboarding of use case developers follows a steep learning curve, since EDCs fol
 
 ## Architecture
 
-The planning of the application can be found [here](docs/planning/README.md)
+The planning of the app can be found [here](docs/planning/README.md)
 
 ## Pre-requisites
 
