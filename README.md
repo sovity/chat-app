@@ -1,6 +1,6 @@
 # Chat App
 
-Chat app serving as a developer tutorial how to develop EDC apps and as a demo app for EDCs
+Chat app serving as a developer tutorial on how to develop EDC apps, and as a demo app for EDCs.
 
 ## Why
 
@@ -8,7 +8,7 @@ Onboarding of use case developers follows a steep learning curve, since EDCs fol
 
 ## Architecture
 
-The planning of the application can be found [here](docs/planning/README.md)
+The planning of the app can be found [here](docs/planning/README.md)
 
 ## Pre-requisites
 
