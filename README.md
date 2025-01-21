@@ -1,6 +1,6 @@
 # Chat App
 
-Chat app serving as a developer tutorial how to develop EDC apps and as a demo app for EDCs
+Chat app serving as a developer tutorial on how to develop EDC apps and as a demo app for EDCs
 
 ## Why
 
