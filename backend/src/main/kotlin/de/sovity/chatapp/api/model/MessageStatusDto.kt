@@ -1,4 +1,4 @@
-package de.sovity.chatapp.model
+package de.sovity.chatapp.api.model
 
 enum class MessageStatusDto {
     SENDING,

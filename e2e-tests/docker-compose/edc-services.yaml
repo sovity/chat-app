@@ -1,0 +1,296 @@
+services:
+  consumer:
+    image: 'caddy:2.8'
+    restart: 'always'
+    ports:
+      - '22000:80'
+    volumes:
+      - './caddyfiles/Caddyfile.cp-with-integrated-dp:/etc/caddy/Caddyfile'
+    environment:
+      CONNECTOR_UPSTREAM_HOST: 'consumer-connector'
+      FRONTEND_UPSTREAM_HOST: 'consumer-ui'
+  consumer-ui:
+    image: 'ghcr.io/sovity/edc-ee-unreleased-ce-ui:pr-1143'
+    restart: 'always'
+    environment:
+      NEXT_PUBLIC_MANAGEMENT_API_URL: '/api/management'
+      NEXT_PUBLIC_MANAGEMENT_API_KEY: 'SomeOtherApiKey'
+  consumer-connector:
+    image: 'ghcr.io/sovity/edc-ee-unreleased-ce:pr-1143'
+    restart: 'always'
+    depends_on:
+      consumer-connector-db:
+        condition: 'service_healthy'
+    environment:
+      sovity.deployment.kind: 'control-plane-with-integrated-data-plane'
+      sovity.edc.fqdn.public: 'consumer'
+      sovity.edc.fqdn.internal: 'localhost'
+      sovity.jdbc.url: 'jdbc:postgresql://consumer-connector-db:5432/db-name'
+      sovity.jdbc.user: 'db-user'
+      sovity.jdbc.password: 'db-pass'
+      sovity.management.api.iam.kind: 'management-iam-api-key'
+      edc.api.auth.key: 'SomeOtherApiKey'
+      sovity.edc.title: 'consumer Title'
+      sovity.edc.description: 'consumer Description'
+      sovity.edc.maintainer.name: 'consumer Maintainer'
+      sovity.edc.maintainer.url: 'https://consumer/maintainer'
+      sovity.edc.curator.name: 'consumer Curator'
+      sovity.edc.curator.url: 'https://consumer/curator'
+      sovity.edc.ui.preconfigured.counterparties: 'http://provider/api/dsp?participantId=provider'
+      sovity.dataspace.kind: 'sovity-mock-iam'
+      edc.participant.id: 'consumer'
+      sovity.http.protocol: 'http://'
+      sovity.vault.in-memory.init.transfer-proxy-private: |
+        -----BEGIN PRIVATE KEY-----
+        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
+        Lhu+vZleCVVCFphwSHrmnn3zXYfVww==
+        -----END PRIVATE KEY-----
+      sovity.vault.in-memory.init.transfer-proxy-public: |
+        -----BEGIN CERTIFICATE-----
+        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
+        k95pRsjXyMhohQ==
+        -----END CERTIFICATE-----
+      sovity.print.config: 'true'
+      sovity.logging.level: 'DEBUG'
+      sovity.logging.kind: 'console'
+  consumer-connector-db:
+    image: 'docker.io/postgres:16-alpine'
+    restart: 'always'
+    environment:
+      POSTGRES_USER: 'db-user'
+      POSTGRES_PASSWORD: 'db-pass'
+      POSTGRES_DB: 'db-name'
+    healthcheck:
+      test:
+        - 'CMD-SHELL'
+        - 'pg_isready -U db-user --dbname=db-name'
+      interval: '1s'
+      timeout: '5s'
+      retries: 10
+    volumes:
+      - 'consumer-connector-db-data:/var/lib/postgresql/data'
+  provider:
+    image: 'caddy:2.8'
+    restart: 'always'
+    ports:
+      - '11000:80'
+    volumes:
+      - './caddyfiles/Caddyfile.cp-with-integrated-dp:/etc/caddy/Caddyfile'
+    environment:
+      CONNECTOR_UPSTREAM_HOST: 'provider-connector'
+      FRONTEND_UPSTREAM_HOST: 'provider-ui'
+  provider-ui:
+    image: 'ghcr.io/sovity/edc-ee-unreleased-ce-ui:pr-1143'
+    restart: 'always'
+    environment:
+      NEXT_PUBLIC_MANAGEMENT_API_URL: '/api/management'
+      NEXT_PUBLIC_MANAGEMENT_API_KEY: 'SomeOtherApiKey'
+  provider-connector:
+    image: 'ghcr.io/sovity/edc-ee-unreleased-ce:pr-1143'
+    restart: 'always'
+    depends_on:
+      provider-connector-db:
+        condition: 'service_healthy'
+    environment:
+      sovity.deployment.kind: 'control-plane-with-integrated-data-plane'
+      sovity.edc.fqdn.public: 'provider'
+      sovity.edc.fqdn.internal: 'localhost'
+      sovity.jdbc.url: 'jdbc:postgresql://provider-connector-db:5432/db-name'
+      sovity.jdbc.user: 'db-user'
+      sovity.jdbc.password: 'db-pass'
+      sovity.management.api.iam.kind: 'management-iam-api-key'
+      edc.api.auth.key: 'SomeOtherApiKey'
+      sovity.edc.title: 'provider Title'
+      sovity.edc.description: 'provider Description'
+      sovity.edc.maintainer.name: 'provider Maintainer'
+      sovity.edc.maintainer.url: 'https://provider/maintainer'
+      sovity.edc.curator.name: 'provider Curator'
+      sovity.edc.curator.url: 'https://provider/curator'
+      sovity.edc.ui.preconfigured.counterparties: 'http://consumer/api/dsp?participantId=consumer'
+      sovity.dataspace.kind: 'sovity-mock-iam'
+      edc.participant.id: 'provider'
+      sovity.http.protocol: 'http://'
+      sovity.vault.in-memory.init.transfer-proxy-private: |
+        -----BEGIN PRIVATE KEY-----
+        MIIJQgIBADANBgkqhkiG9w0BAQEFAASCCSwwggkoAgEAAoICAQDM3GfacjzLtUiA
+        iXm8CJMBmgGYhTMvlaf5M4zhCOCI/A7DZ7qV6kITv2VclF6x/01fI8REyk0IKsdA
+        Sg+Wc/QKTiTzABHVT+vg3XrEIMGL6goFTg9OHsz16IOj6IoMuFd8DrH5y5abfK2E
+        msHvJbz50luEuoeV3zUNuVUD33u6tSykhQ7nvDItKWChK3Hl5QaawRhzqa/K4q7K
+        nGITkibsNdvQYe5eNKGQGB9Pm5URH2GaFkGjk3ATnNBDZMZsVynCtHUy+2fqKArp
+        47Q0uHscW7HbD2Elb8jcSNjdF+vyFsKA6wCm2WXe4DAOs7+Yed9uim+78RrN+x58
+        IMmF8ozkuNbKyQ5iHaZqCpyfvGmp1rTR+2nkUbSeyb7j1VRV0M0rsZtvNt93nDNI
+        YmZUTUyaricsXHpjv8i1Ag14uoFpAmsPrZbfCkF1lD+H1KD7PbjMeN0gJEgh6KCA
+        EisKYvjWx9mtf1RZxZWTuyVBgXB0Eln+uZVB80G6N2HwvltL9l5X4YtOCz/YbCa9
+        WQhM8F8W7WtjsRyF/14LKUwORqyxr58xzxUtahitQ3QSO50RIqxSUo2k3a15V1MX
+        YryswgKzMAzW5bMpWxrF52Vjb/YN1FcxUwXwB3vOJf0pEIOtKWdHBo/tzsOMsz+0
+        JGF2/RD+5hh2kTMgT2SqVaOuxRRG/wIDAQABAoICAHRKASH9iwlP5NIiN9pHO7vD
+        Anjj08SFPY62dpgfg+X+vxqpPT9wdQXktdMx3fdIp1EEaptqAwRJ1EVoRSTwuW1I
+        Iq1WMslVzt4cm13OAlA8EGgmgYWk8k/9JwzaKdNCqVaguOLFcL7erVkCyGfKklV1
+        1cGoaOLoi6M4u0uxhvjbc3YImgdty0XboSCcGtGXioI6bnjpsAKJXxNgZkQZyMJ5
+        aEgH71nGope7Obrk5F+N4senLqd+QDbB427+O6ywZeJCsey4zaocBOXz/g2XUzsr
+        yfBB8LFhnTF+oKwQsj0AMnUf8YTFD5DOzjjqTC5vsCd9qiOTn9WhYRKxQfQpVVRU
+        kaSTO8UlKG/GHkIleUYN49sFSNA5aLNUad67dTAlAZkXtP60pz+lU8NeSiLiQyTD
+        dgfsppZIB5ZXLLoHA1Mk41bXL59iDEpgHLPE9FhLua7rjrkIapF09KOPdlCgvHoJ
+        pH5N4tTq96G5y8V8GP5WDV2NPWnLQJM3uvHOJC1usUwyg3a4JUa78tN5kr87NyH9
+        OEyRa5XWNCa1Qm87ytJ1lRdGJWvP1xHZqg+VxZ14Q4VYh6xJtBTvuKyXE0m71vZC
+        MY1+xcepECwLaNDQYTs3ktiNubEn42amjQ+mUKPRI/EjoTmANF/8Gqe6uoCOOp1z
+        efy8oP5I8F9hVJ1Rr3PBAoIBAQDqFrTUryyu0lyHyJaI5veU5G0R6JjWN/TB62pE
+        +MludyZewBnXGJo0nwwMNNzuZ2i2/pHlNLct75dDo0K6kSBUKcRfXlZ4DNF4ODKc
+        BoMVfvzV6AR6rtdxCCrGc7/HQeSd7sqDb3eGP8RMnyT/JYzftf9J+6+WHa1ReqO+
+        q/pQcRILsIVKzQKu0sDejsSHuCMqBF+LTgZBWk5ryV4F9696H0PCvmvYQSSpXs4n
+        qwLGobCDWaQtMpSBDxc5vJ0DwmYScag1gNGs1jzHjyYXr53uH0hXod0pVQd3eOBi
+        2SDkyxHSoCF+nKXzdPxdpCGR6XIbqELlwsBZCAQet3k5kasPAoIBAQDgCVY045px
+        2+elYt0J3lvxdEm1jVAlejyjD6MzYJoeMts9+mgmHIWYOHKMMA3ukF5cGkDMFpJc
+        fbOn2bjJ2wwG6Tp/Z9F17O85OcYlfHjKK/KV1I4h/2WxbN31bLl5LSmHv3q+Hoe7
+        Q7iojQZywE9KrB7aHdaDHA0PpQlcg64rNq1Kd+QEsqWBsoMvWzxQqUiYGlwCvPvz
+        uwJGA86HdfI6StBP774bSLFSF0tReGYnE2pU4xKHtl8z10XszZMIFVHUC7xjBTmz
+        JA/Sos6PhLBGkhUZ7bxmTVJcFIP/+prKBwgwIr1l8/NWuRbI1HW9+/ArrPZy7mE+
+        JMVAYLEzZWURAoIBAQDG93XMMPixv2uWnhAVXPujOmTai/EcY4NOMGKrLStJEU0z
+        y+Qqx2aKw4Th+yyuFocSw14Oi7gG+1Z+zw2wthncb4PR68VjVMHWhS2/IGnao40T
+        45mrDWFhWafB9jBTlNZUxtqqzNuy6BBZcAtqMuiCXZcXsy2TUrY2Qx9auaKRLQpB
+        lVA2O/rDza7RfFffY8u/sufi5/a5JaDyTL32JIiqLFjT9jaEIRqgO0zOurQpUNVP
+        T6oUIKHI8KK1GHP89gb8Nk7a6xtM5OvUUv/1sfdypnQ+x/3LW9J04fEXE6a50UDc
+        3e6aR1tmi1DV5uQBuYKbr3DtCZOkGQQnd5s6K25RAoIBAC9V6a/9EwnRk80e6WMH
+        Z1fJ4TUJ6ZAxlpRBXpMhaw7MYgRjXxQGXLe/3Xv/P0JToIxHQ7+bWUtPh+EEIIYN
+        0Sm4p5J5xgjridQGf/Y1qXPV+0hrA6jtRHhLb05GrZ2LzEWRUIbQ/o6zjVWXjnA6
+        b8ZwPYiKW2OSTrQqg6LXc7pPsCeW00em009m/07HMSQ90EfK8fvmIDnsHlvavA1k
+        /0wPuJnbJsivAEA/Cbvp+3NwJ7xNygGAp/bVGkIhYVqI3qQ14pTtaraN/QXdPlWW
+        jIQso2a6E19uIOOxtf4k3gWnnLRG8suS0qxVKRo/wazliWZBAkVgVo2ByWeDxoz8
+        dHECggEACQ+Hjnc49AR/vnTZkBD2AA0xNSawsPywFaWYKZm3iQ97foqb6Gk8rWG6
+        +70u406ih+skoUPPQliTwxfq/TVJJZi4sxUu7D4y9Ex6CoCMY9ODbAElMSR9E8sw
+        1t6G92zKPmP1/wqUtJTmja+u997n/YneXYQJwWBxELQdAz7OzpCA3cR6vKdCs08E
+        g0NB7iDMy1iILvSuew3UThzwHw2nks3iQ9SIhqCBCPoZ6803lTVcjeWPS9Nhs/3n
+        2gh0ekO3x0u2Bf5RZaKdxhYLr4s3WiIe9pAl3VLk0IPUQu50f+PSHvXbuetdzhqi
+        Lhu+vZleCVVCFphwSHrmnn3zXYfVww==
+        -----END PRIVATE KEY-----
+      sovity.vault.in-memory.init.transfer-proxy-public: |
+        -----BEGIN CERTIFICATE-----
+        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
+        k95pRsjXyMhohQ==
+        -----END CERTIFICATE-----
+      sovity.print.config: 'true'
+      sovity.logging.level: 'DEBUG'
+      sovity.logging.kind: 'console'
+  provider-connector-db:
+    image: 'docker.io/postgres:16-alpine'
+    restart: 'always'
+    environment:
+      POSTGRES_USER: 'db-user'
+      POSTGRES_PASSWORD: 'db-pass'
+      POSTGRES_DB: 'db-name'
+    healthcheck:
+      test:
+        - 'CMD-SHELL'
+        - 'pg_isready -U db-user --dbname=db-name'
+      interval: '1s'
+      timeout: '5s'
+      retries: 10
+    volumes:
+      - 'provider-connector-db-data:/var/lib/postgresql/data'
+volumes:
+  consumer-connector-db-data:
+    driver: 'local'
+  provider-connector-db-data:
+    driver: 'local'

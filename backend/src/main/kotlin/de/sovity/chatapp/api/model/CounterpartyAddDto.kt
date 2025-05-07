@@ -1,6 +1,6 @@
-package de.sovity.chatapp.model
+package de.sovity.chatapp.api.model
 
-data class ConnectorCreateDto(
+data class CounterpartyAddDto(
     val participantId: String,
     val connectorEndpoint: String
 )
