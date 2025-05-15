@@ -26,5 +26,9 @@ export const request = async <T, R>(
     throw new Error('Failed to fetch');
   }
 
+  if (response.body === null) {
+    return {} as R;
+  }
+
   return (await response.json()) as R;
 };

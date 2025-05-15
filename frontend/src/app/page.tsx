@@ -1,10 +1,7 @@
 'use client';
 
-import {useState, useEffect} from 'react';
-import {
-  listCounterparties,
-  deleteCounterparty as deleteCounterpartyApi,
-} from '@/lib/api/client';
+import {useState, useEffect, useRef} from 'react';
+import {listCounterparties} from '@/lib/api/client';
 import type {CounterpartyDto} from '@/lib/api/models/counterparty-dto';
 import {ChatSidebar} from '@/components/chat-sidebar';
 import {ChatWindow} from '@/components/chat-window';
@@ -20,32 +17,78 @@ const ChatPage = () => {
   const [counterpartyToDelete, setCounterpartyToDelete] =
     useState<CounterpartyDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const initialLoadCompleted = useRef(false);
 
-  // Only fetch counterparties once when the component mounts
-  useEffect(() => {
-    const fetchCounterparties = async () => {
-      try {
+  // Function to fetch counterparties
+  const fetchCounterparties = async (isInitialFetch = false) => {
+    try {
+      if (isInitialFetch) {
         setIsLoading(true);
-        const data = await listCounterparties();
+      } else {
+        setIsRefreshing(true);
+      }
 
-        // Ensure data is an array
-        const counterpartiesArray = Array.isArray(data) ? data : [];
-        console.log('Fetched counterparties:', counterpartiesArray);
+      const data = await listCounterparties();
 
-        setCounterparties(counterpartiesArray);
-        if (counterpartiesArray.length > 0 && !selectedCounterparty) {
-          setSelectedCounterparty(counterpartiesArray[0]);
+      // Ensure data is an array
+      const counterpartiesArray = Array.isArray(data) ? data : [];
+
+      if (isInitialFetch) {
+        console.log('Initial fetch of counterparties:', counterpartiesArray);
+      } else {
+        console.log('Refreshed counterparties:', counterpartiesArray);
+      }
+
+      setCounterparties(counterpartiesArray);
+
+      // Only set the selected counterparty on initial load if none is selected
+      if (
+        isInitialFetch &&
+        counterpartiesArray.length > 0 &&
+        !selectedCounterparty
+      ) {
+        setSelectedCounterparty(counterpartiesArray[0]);
+      } else if (selectedCounterparty) {
+        // If a counterparty is selected, update its data with the latest from the server
+        const updatedSelectedCounterparty = counterpartiesArray.find(
+          (c) => c.participantId === selectedCounterparty.participantId,
+        );
+
+        if (updatedSelectedCounterparty) {
+          setSelectedCounterparty(updatedSelectedCounterparty);
         }
-      } catch (error) {
-        console.error('Failed to fetch counterparties:', error);
-        setCounterparties([]); // Set to empty array on error
-      } finally {
+      }
+
+      if (isInitialFetch) {
+        initialLoadCompleted.current = true;
+      }
+    } catch (error) {
+      console.error('Failed to fetch counterparties:', error);
+      if (isInitialFetch) {
+        setCounterparties([]); // Set to empty array on error during initial load
+      }
+    } finally {
+      if (isInitialFetch) {
         setIsLoading(false);
       }
-    };
+      setIsRefreshing(false);
+    }
+  };
 
-    fetchCounterparties();
-    // Remove selectedCounterparty from dependencies
+  // Initial fetch and setup polling
+  useEffect(() => {
+    initialLoadCompleted.current = false;
+    fetchCounterparties(true);
+
+    // Poll for updates every 5 seconds
+    const interval = setInterval(() => {
+      if (initialLoadCompleted.current) {
+        fetchCounterparties(false);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleCounterpartySelect = (counterparty: CounterpartyDto) => {
@@ -63,36 +106,28 @@ const ChatPage = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (counterpartyToDelete) {
-      try {
-        await deleteCounterpartyApi(counterpartyToDelete.participantId);
+      // Update the UI immediately after successful deletion from the server
+      const updatedCounterparties = counterparties.filter(
+        (c) => c.participantId !== counterpartyToDelete.participantId,
+      );
 
-        setCounterparties((prev) =>
-          prev.filter(
-            (c) => c.participantId !== counterpartyToDelete.participantId,
-          ),
+      setCounterparties(updatedCounterparties);
+
+      // If the deleted counterparty was selected, select another one
+      if (
+        selectedCounterparty?.participantId ===
+        counterpartyToDelete.participantId
+      ) {
+        setSelectedCounterparty(
+          updatedCounterparties.length > 0 ? updatedCounterparties[0] : null,
         );
-
-        if (
-          selectedCounterparty?.participantId ===
-          counterpartyToDelete.participantId
-        ) {
-          const remainingCounterparties = counterparties.filter(
-            (c) => c.participantId !== counterpartyToDelete.participantId,
-          );
-          setSelectedCounterparty(
-            remainingCounterparties.length > 0
-              ? remainingCounterparties[0]
-              : null,
-          );
-        }
-      } catch (error) {
-        console.error('Failed to delete counterparty:', error);
-      } finally {
-        setIsDeleteDialogOpen(false);
-        setCounterpartyToDelete(null);
       }
+
+      // Close the dialog and reset state
+      setIsDeleteDialogOpen(false);
+      setCounterpartyToDelete(null);
     }
   };
 
@@ -105,6 +140,7 @@ const ChatPage = () => {
         onAddClick={() => setIsAddDialogOpen(true)}
         onDeleteClick={handleDeleteClick}
         isLoading={isLoading}
+        isRefreshing={isRefreshing}
       />
 
       <div className="flex flex-1 flex-col">

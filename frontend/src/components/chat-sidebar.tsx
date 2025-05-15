@@ -5,7 +5,7 @@ import {ConnectionStatusDto} from '@/lib/api/models/connection-status-dto';
 import {Button} from '@/components/ui/button';
 import {ScrollArea} from '@/components/ui/scroll-area';
 import {Skeleton} from '@/components/ui/skeleton';
-import {PlusCircle, Trash2, CircleDot} from 'lucide-react';
+import {PlusCircle, Trash2, CircleDot, RefreshCw} from 'lucide-react';
 import {cn} from '@/lib/utils';
 
 interface ChatSidebarProps {
@@ -15,6 +15,7 @@ interface ChatSidebarProps {
   onAddClick: () => void;
   onDeleteClick: (counterparty: CounterpartyDto) => void;
   isLoading: boolean;
+  isRefreshing?: boolean;
 }
 
 export const ChatSidebar = ({
@@ -24,6 +25,7 @@ export const ChatSidebar = ({
   onAddClick,
   onDeleteClick,
   isLoading,
+  isRefreshing = false,
 }: ChatSidebarProps) => {
   // Ensure counterparties is always an array
   const counterpartiesArray = Array.isArray(counterparties)
@@ -45,8 +47,11 @@ export const ChatSidebar = ({
 
   return (
     <div className="flex h-full w-80 flex-col border-r">
-      <div className="border-b p-4">
+      <div className="flex items-center justify-between border-b p-4">
         <h2 className="text-xl font-semibold">Chats</h2>
+        {isRefreshing && (
+          <RefreshCw className="text-muted-foreground h-4 w-4 animate-spin" />
+        )}
       </div>
 
       <ScrollArea className="flex-1">

@@ -12,3 +12,10 @@ export function notFound(): Promise<Response> {
     setTimeout(() => resolve(response), 400);
   });
 }
+
+export function noContent(): Promise<Response> {
+  return new Promise((resolve) => {
+    const response = new Response(null, {status: 204});
+    setTimeout(() => resolve(response), 400);
+  });
+}

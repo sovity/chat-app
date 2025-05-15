@@ -6,7 +6,7 @@ import {
   getUrl,
 } from '@/lib/api/utils/request-utils';
 import {UrlInterceptor} from '@/lib/api/utils/url-interceptor';
-import {notFound, ok} from '@/lib/api/utils/response-utils';
+import {noContent, notFound, ok} from '@/lib/api/utils/response-utils';
 import {
   addCounterparty,
   deleteCounterparty,
@@ -42,7 +42,7 @@ export const FAKE_BACKEND: FetchAPI = async (
   return new UrlInterceptor(url, method)
     .url('counterparties')
     .on('GET', () => {
-      return ok(JSON.stringify(fakeCounterparties));
+      return ok(fakeCounterparties);
     })
 
     .url('counterparties')
@@ -54,7 +54,7 @@ export const FAKE_BACKEND: FetchAPI = async (
     .url('counterparties/*')
     .on('DELETE', (participantId: string) => {
       if (deleteCounterparty(participantId)) {
-        return ok({});
+        return noContent();
       } else {
         return notFound();
       }
