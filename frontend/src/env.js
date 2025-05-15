@@ -24,6 +24,7 @@ export const env = createEnv({
     NEXT_PUBLIC_USE_FAKE_BACKEND: z
       .enum(['true', 'false'])
       .transform((v) => v === 'true'),
+    NEXT_PUBLIC_BACKEND_URL: z.string().url(),
   },
 
   /**
@@ -33,6 +34,7 @@ export const env = createEnv({
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_USE_FAKE_BACKEND: runtimeEnv('NEXT_PUBLIC_USE_FAKE_BACKEND'),
+    NEXT_PUBLIC_BACKEND_URL: runtimeEnv('NEXT_PUBLIC_BACKEND_URL'),
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
