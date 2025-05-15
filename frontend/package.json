@@ -9,7 +9,7 @@
     "lint": "next lint",
     "format-all": "prettier --write .",
     "env:local-dev": "cp .env.local-dev .env",
-    "next:dev": "next dev"
+    "next:dev": "next dev --turbopack"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",

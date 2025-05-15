@@ -18,12 +18,13 @@ import {
   getMessagesByConnectorId,
 } from '@/lib/api/fake-backend/data/fake-messages';
 import {MessageSendDto} from '@/lib/api/models/message-send-dto';
+import {env} from '@/env';
 
 export const FAKE_BACKEND: FetchAPI = async (
   input: RequestInfo,
   init?: RequestInit,
 ): Promise<Response> => {
-  const url = getUrl(input, 'http://fake-backend/api/');
+  const url = getUrl(input, env.NEXT_PUBLIC_BACKEND_URL + '/');
   const method = getMethod(init);
   const body: unknown = getBody(init);
   const params = getQueryParams(input);
