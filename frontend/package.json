@@ -5,11 +5,12 @@
   "scripts": {
     "start": "run-s env:local-dev next:dev",
     "dev": "yarn start",
-    "build": "next build",
     "lint": "next lint",
     "format-all": "prettier --write .",
     "env:local-dev": "cp .env.local-dev .env",
-    "next:dev": "next dev --turbopack"
+    "next:dev": "next dev --turbopack",
+    "build-prod": "run-s build",
+    "build": "cross-env SKIP_ENV_VALIDATION=true next build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
