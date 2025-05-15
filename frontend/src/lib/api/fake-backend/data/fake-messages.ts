@@ -19,9 +19,7 @@ import {v4 as uuidv4} from 'uuid';
 import {ConnectionStatusDto} from '@/lib/api/models/connection-status-dto';
 import {fakeCounterparties} from '@/lib/api/fake-backend/data/fake-counterparties';
 
-type ConnectorMessagesMap = {
-  [connectorId: string]: MessageDto[];
-};
+type ConnectorMessagesMap = Record<string, MessageDto[]>;
 
 const fakeMessages: ConnectorMessagesMap = {
   'connector-1': [
