@@ -81,12 +81,12 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   frontend:
-    name: Next.js Frontend
+    name: Frontend
     env:
       # For Docker Image
-      IMAGE_NAME: tracity-frontend
-      IMAGE_TITLE: Tracity Frontend
-      IMAGE_DESCRIPTION: Next.js Frontend for the sovity Traceability App
+      IMAGE_NAME: chat-app-frontend
+      IMAGE_TITLE: Chat App Frontend
+      IMAGE_DESCRIPTION: Frontend for the sovity Chat App
     runs-on: ubuntu-latest
     permissions:
       contents: read
