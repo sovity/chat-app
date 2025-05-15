@@ -19,7 +19,7 @@ interface ChatWindowProps {
   counterparty: CounterpartyDto;
 }
 
-export function ChatWindow({counterparty}: ChatWindowProps) {
+export const ChatWindow = ({counterparty}: ChatWindowProps) => {
   const [messages, setMessages] = useState<MessageDto[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isInitialLoading, setIsInitialLoading] = useState(true); // Track initial loading separately
@@ -232,4 +232,4 @@ export function ChatWindow({counterparty}: ChatWindowProps) {
       </form>
     </div>
   );
-}
+};

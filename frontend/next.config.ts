@@ -1,7 +1,8 @@
-import type {NextConfig} from 'next';
+import('./src/env.js');
 
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import("next").NextConfig} */
+const config = {
+  output: 'standalone',
 };
 
-export default nextConfig;
+export default config;
