@@ -1,4 +1,4 @@
-import {ChatLayout} from "@/components/chat-layout"
+import {ChatLayout} from '@/components/chat-layout';
 
-const Home = () => <ChatLayout/>;
-export default Home
+const Home = () => <ChatLayout />;
+export default Home;

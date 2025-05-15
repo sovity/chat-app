@@ -1,34 +1,48 @@
-"use client"
+'use client';
 
-import type {Chat} from "@/types/chat"
-import {Button} from "@/components/ui/button"
-import {ScrollArea} from "@/components/ui/scroll-area"
-import {cn} from "@/lib/utils"
-import {formatDistanceToNow} from "@/lib/date-utils"
-import {PlusCircle, Trash2} from "lucide-react"
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip"
+import type {Chat} from '@/types/chat';
+import {Button} from '@/components/ui/button';
+import {ScrollArea} from '@/components/ui/scroll-area';
+import {cn} from '@/lib/utils';
+import {formatDistanceToNow} from '@/lib/date-utils';
+import {PlusCircle, Trash2} from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface ChatListProps {
-  chats: Chat[]
-  activeChat: Chat | null
-  onSelectChat: (chat: Chat) => void
-  onCreateChat: () => void
-  onDeleteChat: (chatId: string) => void
+  chats: Chat[];
+  activeChat: Chat | null;
+  onSelectChat: (chat: Chat) => void;
+  onCreateChat: () => void;
+  onDeleteChat: (chatId: string) => void;
 }
 
-export const ChatList = ({chats, activeChat, onSelectChat, onCreateChat, onDeleteChat}: ChatListProps) => {
+export const ChatList = ({
+  chats,
+  activeChat,
+  onSelectChat,
+  onCreateChat,
+  onDeleteChat,
+}: ChatListProps) => {
   return (
-    <div className="w-80 border-r border-border bg-muted/30 flex flex-col h-full">
-      <div className="p-4 border-b border-border">
-        <Button onClick={onCreateChat} className="w-full justify-start" variant="default">
-          <PlusCircle className="mr-2 h-4 w-4"/>
+    <div className="border-border bg-muted/30 flex h-full w-80 flex-col border-r">
+      <div className="border-border border-b p-4">
+        <Button
+          onClick={onCreateChat}
+          className="w-full justify-start"
+          variant="default">
+          <PlusCircle className="mr-2 h-4 w-4" />
           New Chat
         </Button>
       </div>
       <ScrollArea className="flex-1">
         <div className="p-2">
           {chats.length === 0 ? (
-            <div className="px-4 py-8 text-center text-muted-foreground">
+            <div className="text-muted-foreground px-4 py-8 text-center">
               No chats yet. Create a new one to get started.
             </div>
           ) : (
@@ -37,17 +51,22 @@ export const ChatList = ({chats, activeChat, onSelectChat, onCreateChat, onDelet
                 <div
                   key={chat.id}
                   className={cn(
-                    "flex items-center justify-between p-3 rounded-md cursor-pointer group",
-                    activeChat?.id === chat.id ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
+                    'group flex cursor-pointer items-center justify-between rounded-md p-3',
+                    activeChat?.id === chat.id
+                      ? 'bg-accent text-accent-foreground'
+                      : 'hover:bg-accent/50',
                   )}
-                  onClick={() => onSelectChat(chat)}
-                >
+                  onClick={() => onSelectChat(chat)}>
                   <div className="flex-1 truncate">
-                    <div className="font-medium truncate">{chat.name}</div>
+                    <div className="truncate font-medium">{chat.name}</div>
                     {chat.lastMessage && (
-                      <div className="text-xs text-muted-foreground truncate">{chat.lastMessage.content}</div>
+                      <div className="text-muted-foreground truncate text-xs">
+                        {chat.lastMessage.content}
+                      </div>
                     )}
-                    <div className="text-xs text-muted-foreground mt-1">{formatDistanceToNow(chat.timestamp)}</div>
+                    <div className="text-muted-foreground mt-1 text-xs">
+                      {formatDistanceToNow(chat.timestamp)}
+                    </div>
                   </div>
                   <TooltipProvider>
                     <Tooltip>
@@ -57,11 +76,10 @@ export const ChatList = ({chats, activeChat, onSelectChat, onCreateChat, onDelet
                           size="icon"
                           className="opacity-0 group-hover:opacity-100"
                           onClick={(e) => {
-                            e.stopPropagation()
-                            onDeleteChat(chat.id)
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4"/>
+                            e.stopPropagation();
+                            onDeleteChat(chat.id);
+                          }}>
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>Delete chat</TooltipContent>
@@ -73,10 +91,10 @@ export const ChatList = ({chats, activeChat, onSelectChat, onCreateChat, onDelet
           )}
         </div>
       </ScrollArea>
-      <div className="p-4 border-t border-border">
+      <div className="border-border border-t p-4">
         <div className="text-sm font-medium">Tractus-X Connector</div>
-        <div className="text-xs text-muted-foreground">Catena-X Dataspace</div>
+        <div className="text-muted-foreground text-xs">Catena-X Dataspace</div>
       </div>
     </div>
-  )
+  );
 };

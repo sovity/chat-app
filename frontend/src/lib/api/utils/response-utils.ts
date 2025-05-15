@@ -12,4 +12,3 @@ export function notFound(): Promise<Response> {
     setTimeout(() => resolve(response), 400);
   });
 }
-

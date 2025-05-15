@@ -1,6 +1,6 @@
-import {CounterpartyDto} from "@/lib/api/models/counterparty-dto";
-import {ConnectionStatusDto} from "@/lib/api/models/connection-status-dto";
-import {CounterpartyAddDto} from "@/lib/api/models/counterparty-add-dto";
+import {CounterpartyDto} from '@/lib/api/models/counterparty-dto';
+import {ConnectionStatusDto} from '@/lib/api/models/connection-status-dto';
+import {CounterpartyAddDto} from '@/lib/api/models/counterparty-add-dto';
 
 export const fakeCounterparties: CounterpartyDto[] = [
   {
@@ -15,7 +15,7 @@ export const fakeCounterparties: CounterpartyDto[] = [
     status: ConnectionStatusDto.ERROR,
     lastUpdate: new Date(),
   },
-]
+];
 
 export const addCounterparty = (toAdd: CounterpartyAddDto): CounterpartyDto => {
   const created: CounterpartyDto = {
@@ -33,14 +33,16 @@ export const addCounterparty = (toAdd: CounterpartyAddDto): CounterpartyDto => {
   }, 5000);
 
   return created;
-}
+};
 
 export const deleteCounterparty = (participantId: string): boolean => {
-  const index = fakeCounterparties.findIndex((it) => it.participantId === participantId);
+  const index = fakeCounterparties.findIndex(
+    (it) => it.participantId === participantId,
+  );
   if (index >= 0) {
     fakeCounterparties.splice(index, 1);
     return true;
   } else {
     return false;
   }
-}
+};

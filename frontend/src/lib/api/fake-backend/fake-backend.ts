@@ -1,11 +1,23 @@
-import {FetchAPI} from "@/lib/api/utils/client-utils";
-import {getBody, getMethod, getQueryParams, getUrl} from "@/lib/api/utils/request-utils";
-import {UrlInterceptor} from "@/lib/api/utils/url-interceptor";
-import {notFound, ok} from "@/lib/api/utils/response-utils";
-import {addCounterparty, deleteCounterparty, fakeCounterparties} from "@/lib/api/fake-backend/data/fake-counterparties";
-import {CounterpartyAddDto} from "@/lib/api/models/counterparty-add-dto";
-import {addMessageToConnector, getMessagesByConnectorId} from "@/lib/api/fake-backend/data/fake-messages";
-import {MessageSendDto} from "@/lib/api/models/message-send-dto";
+import {FetchAPI} from '@/lib/api/utils/client-utils';
+import {
+  getBody,
+  getMethod,
+  getQueryParams,
+  getUrl,
+} from '@/lib/api/utils/request-utils';
+import {UrlInterceptor} from '@/lib/api/utils/url-interceptor';
+import {notFound, ok} from '@/lib/api/utils/response-utils';
+import {
+  addCounterparty,
+  deleteCounterparty,
+  fakeCounterparties,
+} from '@/lib/api/fake-backend/data/fake-counterparties';
+import {CounterpartyAddDto} from '@/lib/api/models/counterparty-add-dto';
+import {
+  addMessageToConnector,
+  getMessagesByConnectorId,
+} from '@/lib/api/fake-backend/data/fake-messages';
+import {MessageSendDto} from '@/lib/api/models/message-send-dto';
 
 export const FAKE_BACKEND: FetchAPI = async (
   input: RequestInfo,
@@ -49,13 +61,13 @@ export const FAKE_BACKEND: FetchAPI = async (
 
     .url('connectors/*/messages')
     .on('GET', (connectorId: string) => {
-      return ok(getMessagesByConnectorId(connectorId))
+      return ok(getMessagesByConnectorId(connectorId));
     })
 
     .url('connectors/*/messages')
     .on('POST', (connectorId: string) => {
       const messageSendRequest = body as MessageSendDto;
-      return ok(addMessageToConnector(connectorId, messageSendRequest))
+      return ok(addMessageToConnector(connectorId, messageSendRequest));
     })
 
     .tryMatch();

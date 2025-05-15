@@ -1,154 +1,235 @@
-"use client"
+'use client';
 
-import type React from "react"
+import type React from 'react';
 
-import {useState, useRef, useEffect} from "react"
-import type {Chat} from "@/types/chat"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
-import {ScrollArea} from "@/components/ui/scroll-area"
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
-import {cn} from "@/lib/utils"
-import {formatTime} from "@/lib/date-utils"
-import {Send, Trash2} from "lucide-react"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+import {useState, useEffect, useRef} from 'react';
+import type {CounterpartyDto} from '@/lib/api/models/counterparty-dto';
+import type {MessageDto} from '@/lib/api/models/message-dto';
+import {MessageDirectionDto} from '@/lib/api/models/message-direction-dto';
+import {MessageStatusDto} from '@/lib/api/models/message-status-dto';
+import {getAllMessages, sendMessage} from '@/lib/api/client';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {ScrollArea} from '@/components/ui/scroll-area';
+import {Skeleton} from '@/components/ui/skeleton';
+import {Send, CheckCircle2, AlertCircle, Clock} from 'lucide-react';
+import {cn} from '@/lib/utils';
 
 interface ChatWindowProps {
-  chat: Chat
-  onSendMessage: (content: string) => void
-  onDeleteChat: () => void
+  counterparty: CounterpartyDto;
 }
 
-export const ChatWindow = ({chat, onSendMessage, onDeleteChat}: ChatWindowProps) => {
-  const [message, setMessage] = useState("")
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+export function ChatWindow({counterparty}: ChatWindowProps) {
+  const [messages, setMessages] = useState<MessageDto[]>([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [isInitialLoading, setIsInitialLoading] = useState(true); // Track initial loading separately
+  const [isRefreshing, setIsRefreshing] = useState(false); // Track refreshes separately
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const initialLoadCompleted = useRef(false);
 
-  useEffect(() => {
-    // Scroll to bottom when messages change
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector("[data-radix-scroll-area-viewport]")
-      if (scrollContainer) {
-        setTimeout(() => {
-          scrollContainer.scrollTop = scrollContainer.scrollHeight
-        }, 0)
+  // Function to fetch messages
+  const fetchMessages = async (isInitialFetch = false) => {
+    try {
+      if (isInitialFetch) {
+        setIsInitialLoading(true);
+      } else {
+        setIsRefreshing(true);
       }
-    }
 
-    // Focus input when chat changes
-    inputRef.current?.focus()
-  }, [chat]) // Changed from chat.messages to chat to ensure it runs when the entire chat object changes
+      const data = await getAllMessages(counterparty.participantId);
+      setMessages(data);
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (message.trim()) {
-      onSendMessage(message.trim())
-      setMessage("")
+      if (isInitialFetch) {
+        initialLoadCompleted.current = true;
+      }
+    } catch (error) {
+      console.error('Failed to fetch messages:', error);
+    } finally {
+      if (isInitialFetch) {
+        setIsInitialLoading(false);
+      }
+      setIsRefreshing(false);
     }
-  }
+  };
+
+  // Initial load of messages when the component mounts or counterparty changes
+  useEffect(() => {
+    initialLoadCompleted.current = false;
+    fetchMessages(true);
+
+    // Poll for new messages every 2 seconds
+    const interval = setInterval(() => {
+      if (initialLoadCompleted.current) {
+        fetchMessages(false);
+      }
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [counterparty.participantId]);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
+  };
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMessage.trim()) return;
+
+    // Optimistically add the message to the UI
+    const tempId = `temp-${Date.now()}`;
+    const tempMessage: MessageDto = {
+      messageId: tempId,
+      createdAt: new Date(),
+      message: newMessage,
+      messageDirection: MessageDirectionDto.OUTGOING,
+      status: MessageStatusDto.SENDING,
+    };
+
+    setMessages((prev) => [...prev, tempMessage]);
+    setNewMessage('');
+
+    try {
+      const sentMessage = await sendMessage(counterparty.participantId, {
+        message: newMessage,
+        username: 'User', // Assuming a default username
+      });
+
+      // Replace the temp message with the real one
+      setMessages((prev) =>
+        prev.map((msg) => (msg.messageId === tempId ? sentMessage : msg)),
+      );
+    } catch (error) {
+      console.error('Failed to send message:', error);
+
+      // Update the temp message to show error
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.messageId === tempId
+            ? {...msg, status: MessageStatusDto.ERROR}
+            : msg,
+        ),
+      );
+    }
+  };
+
+  const getStatusIcon = (status: MessageStatusDto) => {
+    switch (status) {
+      case MessageStatusDto.SENDING:
+        return <Clock className="text-muted-foreground h-3 w-3" />;
+      case MessageStatusDto.OK:
+        return <CheckCircle2 className="h-3 w-3 text-green-500" />;
+      case MessageStatusDto.ERROR:
+        return <AlertCircle className="h-3 w-3 text-red-500" />;
+      default:
+        return null;
+    }
+  };
+
+  const formatTime = (date: Date) => {
+    return new Date(date).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between p-4 border-b border-border">
-        <div className="font-semibold">{chat.name}</div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Trash2 className="h-4 w-4"/>
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete chat</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete this chat? This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={onDeleteChat}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between border-b p-4">
+        <div>
+          <h2 className="font-semibold">{counterparty.participantId}</h2>
+          <p className="text-muted-foreground max-w-md truncate text-sm">
+            {counterparty.connectorEndpoint}
+          </p>
+        </div>
       </div>
 
-      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-        <div className="space-y-4">
-          {chat.messages.length === 0 ? (
-            <div className="text-center text-muted-foreground py-8">No messages yet. Start the conversation!</div>
-          ) : (
-            chat.messages.map((msg) => (
+      <ScrollArea className="flex-1 p-4">
+        {isInitialLoading ? (
+          <div className="space-y-4">
+            {Array.from({length: 5}).map((_, i) => (
               <div
-                key={msg.id}
-                className={cn("flex items-start gap-3", msg.sender === "user" ? "justify-end" : "justify-start")}
-              >
-                {msg.sender !== "user" && (
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder.svg?key=tx1zs" alt="Tractus-X"/>
-                    <AvatarFallback>TX</AvatarFallback>
-                  </Avatar>
-                )}
+                key={i}
+                className={cn(
+                  'flex',
+                  i % 2 === 0 ? 'justify-start' : 'justify-end',
+                )}>
+                <Skeleton
+                  className={cn(
+                    'h-16 rounded-lg',
+                    i % 2 === 0 ? 'w-2/3' : 'w-1/2',
+                  )}
+                />
+              </div>
+            ))}
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="flex h-full items-center justify-center">
+            <div className="text-center">
+              <h3 className="font-medium">No messages yet</h3>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Send a message to start the conversation
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <div
+                key={message.messageId}
+                className={cn(
+                  'flex',
+                  message.messageDirection === MessageDirectionDto.OUTGOING
+                    ? 'justify-end'
+                    : 'justify-start',
+                )}>
                 <div
                   className={cn(
-                    "rounded-lg px-4 py-2 max-w-[80%]",
-                    msg.sender === "user" ? "bg-primary text-primary-foreground" : "bg-muted",
-                  )}
-                >
-                  <div>{msg.content}</div>
-                  <div className="text-xs opacity-70 mt-1 flex items-center gap-1">
-                    {formatTime(msg.timestamp)}
-                    {msg.sender === "user" && msg.status && (
-                      <span className="ml-2">
-                        {msg.status === "sending"
-                          ? "• Sending..."
-                          : msg.status === "delivered"
-                            ? "• Delivered"
-                            : "• Failed"}
-                      </span>
+                    'max-w-[70%] rounded-lg p-3',
+                    message.messageDirection === MessageDirectionDto.OUTGOING
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted',
+                  )}>
+                  <div className="break-words">{message.message}</div>
+                  <div className="mt-1 flex items-center justify-end space-x-1">
+                    <span className="text-xs opacity-70">
+                      {formatTime(message.createdAt)}
+                    </span>
+                    {message.messageDirection ===
+                      MessageDirectionDto.OUTGOING && (
+                      <span>{getStatusIcon(message.status)}</span>
                     )}
                   </div>
                 </div>
-                {msg.sender === "user" && (
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="/abstract-geometric-shapes.png" alt="User"/>
-                    <AvatarFallback>U</AvatarFallback>
-                  </Avatar>
-                )}
               </div>
-            ))
-          )}
-        </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+        )}
       </ScrollArea>
 
-      <div className="p-4 border-t border-border">
-        <form onSubmit={handleSendMessage} className="flex gap-2">
-          <Input
-            ref={inputRef}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1"
-          />
-          <Button type="submit" size="icon" disabled={!message.trim()}>
-            <Send className="h-4 w-4"/>
-          </Button>
-        </form>
-      </div>
+      <form
+        onSubmit={handleSendMessage}
+        className="flex items-center space-x-2 border-t p-4">
+        <Input
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          placeholder="Type a message..."
+          className="flex-1"
+          disabled={isInitialLoading}
+        />
+        <Button
+          type="submit"
+          size="icon"
+          disabled={!newMessage.trim() || isInitialLoading}>
+          <Send className="h-4 w-4" />
+          <span className="sr-only">Send</span>
+        </Button>
+      </form>
     </div>
-  )
-};
+  );
+}

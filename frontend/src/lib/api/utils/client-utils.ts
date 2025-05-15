@@ -1,26 +1,30 @@
-import {env} from "@/env";
-import {FAKE_BACKEND} from "@/lib/api/fake-backend/fake-backend";
+import {env} from '@/env';
+import {FAKE_BACKEND} from '@/lib/api/fake-backend/fake-backend';
 
 export type FetchAPI = WindowOrWorkerGlobalScope['fetch'];
 
 const shouldUseFakeBackend = env.NEXT_PUBLIC_USE_FAKE_BACKEND;
 const backendBaseUrl = env.NEXT_PUBLIC_BACKEND_URL;
 
-export const request = async <T,R>(method: string, url: string, body?: T): Promise<R> => {
+export const request = async <T, R>(
+  method: string,
+  url: string,
+  body?: T,
+): Promise<R> => {
   const fetchApi: FetchAPI = shouldUseFakeBackend ? FAKE_BACKEND : fetch;
 
   const response = await fetchApi(`${backendBaseUrl}/${url}`, {
     method,
     headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json",
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
     },
     body: body ? JSON.stringify(body) : undefined,
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch");
+    throw new Error('Failed to fetch');
   }
 
-  return await response.json() as R;
-}
+  return (await response.json()) as R;
+};
