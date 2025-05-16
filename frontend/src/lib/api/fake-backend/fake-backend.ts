@@ -1,0 +1,88 @@
+/*
+ * Copyright (c) 2025 sovity GmbH
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Apache License, Version 2.0 which is available at
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Contributors:
+ *      sovity GmbH - initial implementation
+ */
+
+import {FetchAPI} from '@/lib/api/utils/client-utils';
+import {
+  getBody,
+  getMethod,
+  getQueryParams,
+  getUrl,
+} from '@/lib/api/utils/request-utils';
+import {UrlInterceptor} from '@/lib/api/utils/url-interceptor';
+import {noContent, notFound, ok} from '@/lib/api/utils/response-utils';
+import {
+  addCounterparty,
+  deleteCounterparty,
+  fakeCounterparties,
+} from '@/lib/api/fake-backend/data/fake-counterparties';
+import {CounterpartyAddDto} from '@/lib/api/models/counterparty-add-dto';
+import {
+  addMessageToConnector,
+  getMessagesByConnectorId,
+} from '@/lib/api/fake-backend/data/fake-messages';
+import {MessageSendDto} from '@/lib/api/models/message-send-dto';
+import {env} from '@/env';
+
+export const FAKE_BACKEND: FetchAPI = async (
+  input: RequestInfo,
+  init?: RequestInit,
+): Promise<Response> => {
+  const url = getUrl(input, env.NEXT_PUBLIC_BACKEND_URL + '/');
+  const method = getMethod(init);
+  const body: unknown = getBody(init);
+  const params = getQueryParams(input);
+
+  console.log(
+    ...[
+      'Fake Backend:',
+      method,
+      url,
+      params?.get('size') ? params : null,
+      body,
+    ].filter((it) => !!it),
+  );
+
+  return new UrlInterceptor(url, method)
+    .url('counterparties')
+    .on('GET', () => {
+      return ok(fakeCounterparties);
+    })
+
+    .url('counterparties')
+    .on('POST', () => {
+      const counterpartyAddRequest = body as CounterpartyAddDto;
+      return ok(addCounterparty(counterpartyAddRequest));
+    })
+
+    .url('counterparties/*')
+    .on('DELETE', (participantId: string) => {
+      if (deleteCounterparty(participantId)) {
+        return noContent();
+      } else {
+        return notFound();
+      }
+    })
+
+    .url('connectors/*/messages')
+    .on('GET', (connectorId: string) => {
+      return ok(getMessagesByConnectorId(connectorId));
+    })
+
+    .url('connectors/*/messages')
+    .on('POST', (connectorId: string) => {
+      const messageSendRequest = body as MessageSendDto;
+      return ok(addMessageToConnector(connectorId, messageSendRequest));
+    })
+
+    .tryMatch();
+};

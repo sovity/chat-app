@@ -13,6 +13,14 @@ Onboarding of use case developers follows a steep learning curve, since EDCs fol
 - Bash / Git Bash
 - Docker
 
+You need to provide a GitHub access token with the `packages:read` scope to access Maven repositories for dependencies.
+To add the token, create a file named `gradle.properties` in `HOME_DIRECTORY/.gradle/` with the following content:
+
+```
+gpr.user=your-github-username
+gpr.key=your-github-access-token
+```
+
 ## Get Started
 
 ```shell script
