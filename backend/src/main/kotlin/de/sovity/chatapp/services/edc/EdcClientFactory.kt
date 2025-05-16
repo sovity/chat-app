@@ -25,7 +25,7 @@ class EdcClientFactory(
             .build()
 
         retry(
-            times = 30,
+            times = 60,
             delay = Duration.ofSeconds(1),
             messageOnFailure = "Failed to connect the EDC Management API at $managementApiUrl"
         ) {

@@ -109,7 +109,6 @@ export const ChatWindow = ({counterparty}: ChatWindowProps) => {
     try {
       const sentMessage = await sendMessage(counterparty.participantId, {
         message: newMessage,
-        username: 'User', // Assuming a default username
       });
 
       // Replace the temp message with the real one

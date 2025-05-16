@@ -19,6 +19,8 @@ import {CounterpartyAddDto} from '@/lib/api/models/counterparty-add-dto';
 import {MessageDto} from '@/lib/api/models/message-dto';
 import {MessageSendDto} from '@/lib/api/models/message-send-dto';
 
+const e = encodeURIComponent;
+
 export const listCounterparties = async (): Promise<CounterpartyDto[]> => {
   return await request('GET', 'counterparties');
 };
@@ -32,22 +34,22 @@ export const addCounterparty = async (
 export const deleteCounterparty = async (
   participantId: string,
 ): Promise<void> => {
-  return await request('DELETE', `counterparties/${participantId}`);
+  return await request('DELETE', `counterparties/${e(participantId)}`);
 };
 
 export const getAllMessages = async (
-  connectorId: string,
+  participantId: string,
 ): Promise<MessageDto[]> => {
-  return await request('GET', `connectors/${connectorId}/messages`);
+  return await request('GET', `counterparties/${e(participantId)}/messages`);
 };
 
 export const sendMessage = async (
-  connectorId: string,
+  participantId: string,
   messageSendRequest: MessageSendDto,
 ): Promise<MessageDto> => {
   return await request(
     'POST',
-    `connectors/${connectorId}/messages`,
+    `counterparties/${e(participantId)}/messages`,
     messageSendRequest,
   );
 };

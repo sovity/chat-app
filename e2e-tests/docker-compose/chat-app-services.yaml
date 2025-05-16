@@ -32,4 +32,3 @@ services:
       "chat-app.edc.chat-app.edc.connector-endpoint": "http://consumer:80/api/dsp"
       "chat-app.edc.management-api.url": "http://consumer:80/api/management"
       "chat-app.edc.management-api.key": "SomeOtherApiKey"
-volumes:
