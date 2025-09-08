@@ -1,4 +1,7 @@
-/** @type {import('prettier').Config & import('prettier-plugin-tailwindcss').PluginOptions} */
+/**
+ * @see https://prettier.io/docs/configuration
+ * @type {import("prettier").Config}
+ */
 const config = {
   tabWidth: 2,
   useTabs: false,
@@ -24,9 +27,18 @@ const config = {
   importOrderParserPlugins: ['typescript', 'jsx', 'decorators-legacy'],
   importOrderSeparation: false,
   importOrderSortSpecifiers: true,
+
   plugins: [
     'prettier-plugin-tailwindcss',
     '@trivago/prettier-plugin-sort-imports',
+  ],
+  overrides: [
+    {
+      files: ['*.tsx', '*.ts'],
+      options: {
+        parser: 'babel-ts',
+      },
+    },
   ],
 };
 
